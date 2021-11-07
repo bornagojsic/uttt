@@ -144,7 +144,7 @@ class MonteCarlo(): #Metode i komponente MCTS algoritma
         self.rules = GameRules()
         self.tree = [] #Sprema sve cvorove u listu
 
-    def UCB1(self, node, c=1.41): #Upper Confidence Bound 1, c je hiperparametar exploitation vs. exploration
+    def UCB1(self, node, c=2*1.41): #Upper Confidence Bound 1, c je hiperparametar exploitation vs. exploration
         ret = []
         for i in node.children:
             temp = self.tree[i]
