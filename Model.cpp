@@ -15,7 +15,7 @@ int argmax(vector<double> array){
 	return maksind;
 }
 
-struct move{
+struct g_move{
 	int ind;
 	char sign;
 };
@@ -40,14 +40,14 @@ class GameRules{ //Objekt cije metode predstavljaju pravile igre i moguce poteze
 
 	public:
 		
-		vector<move> get_legal_moves(Gameboard state, move prev_move){ //Vraca listu svih legalnih poteza
-			vector<move> legal_moves;
+		vector<g_move> get_legal_moves(Gameboard state, g_move prev_move){ //Vraca listu svih legalnih poteza
+			vector<g_move> legal_moves;
 			if (state.won[prev_move.ind % 9] != '.'){ //Ako je 3x3 polje na koje prosli potez salje zauzeto/popunjeno
 				for (int i=0;i<9;++i){
 					if (state.won[i] != '.') continue;
 					for (int j=0;j<9;++j){
 						if (state.board[9*i+j] == '.'){
-							move tempmove;
+							g_move tempmove;
 							tempmove.ind = 9*i+j;
 							tempmove.sign = "xo"[prev_move.sign == 'x'];
 							legal_moves.push_back(tempmove);
@@ -59,7 +59,7 @@ class GameRules{ //Objekt cije metode predstavljaju pravile igre i moguce poteze
 			int x = prev_move.ind % 9 * 9;
 			for (int i=x;i<x+9;++i){ //Standardna provjera 3x3 polja na koje prosli potez salje
 				if (state.board[i] == '.'){
-					move tempmove;
+					g_move tempmove;
 					tempmove.ind = i;
 					tempmove.sign = "xo"[prev_move.sign == 'x'];
 					legal_moves.push_back(tempmove); 
@@ -68,7 +68,7 @@ class GameRules{ //Objekt cije metode predstavljaju pravile igre i moguce poteze
 			return legal_moves;
 		}
 		
-		void is_3x3_taken(Gameboard &state, move prev_move){ //Inplace; provjerava je li neko 3x3 polje uzeto/popunjeno i sprema u Gameboard.won
+		void is_3x3_taken(Gameboard &state, g_move prev_move){ //Inplace; provjerava je li neko 3x3 polje uzeto/popunjeno i sprema u Gameboard.won
 			int x = prev_move.ind / 9 * 9;
 			if (state.board[x] == state.board[x+1] && state.board[x+1] == state.board[x+2] && state.board[x+2] != '.'){
 				state.won[prev_move.ind / 9] = prev_move.sign;
@@ -144,7 +144,7 @@ class GameRules{ //Objekt cije metode predstavljaju pravile igre i moguce poteze
 			else return -2; //Izjednaceno je
 		}
 		
-		void make_move(Gameboard &state, move potez){
+		void make_move(Gameboard &state, g_move potez){
 			state.board[potez.ind] = potez.sign;
 		}
 	
@@ -156,24 +156,29 @@ class Node{ //Objekt koji predstavlja cvor u game tree-u
 		
 		Gameboard state;
 		int ind;
-		move parent_move;
+		g_move parent_move;
 		vector<int> children;
 		int parent;
 		int wins;
 		int visits;
-		vector<move> children_moves;
+		vector<g_move> children_moves;
 		
-		Node(Gameboard a, int b, move c, vector<int> d, int e, int f, int g, vector<move> h){
+		Node(Gameboard a, int indeks, g_move parentalni_potez, int roditelj){
 			state = a;
-			ind = b;
-			parent_move = c;
-			children = d;
-			parent = e;
-			wins = f;
-			visits = g;
-			children_moves = h;
+			ind = indeks;
+			parent_move = parentalni_potez;
+			parent = roditelj;
+			wins = 0;
+			visits = 0;
 		}
 };
+
+Gameboard deepcopy_state(Gameboard state){
+	Gameboard ret;
+	for (int i=0;i<81;++i) ret.board[i] = state.board[i];
+	for (int i=0;i<9;++i) ret.won[i] = state.won[i];
+	return ret;
+}
 
 class MonteCarlo{ //Metode i komponente MCTS algoritma
 	
@@ -195,6 +200,45 @@ class MonteCarlo{ //Metode i komponente MCTS algoritma
 			}
 			return ret;
 		}
+		
+		int selection(Node node){
+			int temp = node.ind;
+			while (1){
+				if (tree[temp].children_moves.size()) return temp;
+				if (tree[temp].children.size()){
+					int temp2 = argmax(UCB1(tree[temp]));
+					temp = tree[temp].children[temp2];
+					continue;
+				}
+				break;
+			}
+			return temp;
+		}
+		
+		bool expansion(Node node){
+			if (rules.is_game_over(node.state)) return false;
+			if (node.children_moves.size()){
+				g_move potez = node.children_moves[node.children_moves.size()-1]; node.children_moves.pop_back();
+				Gameboard board = deepcopy_state(node.state);
+				rules.make_move(board, potez);
+				rules.is_3x3_taken(board, potez);
+				Node child(board, tree.size(), potez, node.ind);
+				child.children_moves = rules.get_legal_moves(child.state, child.parent_move);
+				tree.push_back(child);
+				node.children.push_back(child.ind);
+			}
+		}
+		
+		int simulation(Node node){
+			Gameboard board = deepcopy_state(node.state);
+			g_move potez; potez.ind = node.parent_move.ind; potez.sign = node.parent_move.sign;
+			while (1){
+				if (rules.is_game_over(board)){
+					break;
+				}
+				vector<g_move> moves = rules.get_legal_moves(board, potez);
+			}
+		}
 	
 };
 
@@ -213,27 +257,5 @@ move_keys["A3"]=0; move_keys["B3"]=1; move_keys["C3"]=2; move_keys["A2"]=3; move
 move_keys["D3"]=0; move_keys["E3"]=1; move_keys["F3"]=2; move_keys["D2"]=3; move_keys["E2"]=4; move_keys["F2"]=5; move_keys["D1"]=6; move_keys["E1"]=7; move_keys["F1"]=8;
 move_keys["G3"]=0; move_keys["H3"]=1; move_keys["I3"]=2; move_keys["G2"]=3; move_keys["H2"]=4; move_keys["I2"]=5; move_keys["G1"]=6; move_keys["H1"]=7; move_keys["I1"]=8;
 
-Gameboard board;
-GameRules rules;
-move testmove;
-for (int i=0;i<9;++i) cout << board.won[i] << " ";
-cout << endl;
-testmove.ind = 15;
-testmove.sign = 'x';
-board.board[9] = 'x';
-board.board[12] = 'x';
-board.board[15] = 'x';
-rules.is_3x3_taken(board, testmove);
-for (int i=0;i<9;++i) cout << board.won[i] << " ";
-cout  << endl;
-board.board[0] = 'o';
-board.board[1] = 'o';
-board.board[2] = 'o';
-testmove.ind = 2;
-testmove.sign = 'o';
-rules.is_3x3_taken(board, testmove);
-for (int i=0;i<9;++i) cout << board.won[i] << " ";
-
 return 0;
 }
-
