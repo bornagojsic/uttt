@@ -3,8 +3,8 @@ using namespace std;
 
 map<string, int> move_keys;
 
-int argmax(vector<int> array){
-	int maks = array[0];
+int argmax(vector<double> array){
+	double maks = array[0];
 	int maksind = 0;
 	for (int i=0;i<array.size();++i){
 		if (array[i] > maks){
@@ -70,28 +70,28 @@ class GameRules{ //Objekt cije metode predstavljaju pravile igre i moguce poteze
 		
 		void is_3x3_taken(Gameboard &state, move prev_move){ //Inplace; provjerava je li neko 3x3 polje uzeto/popunjeno i sprema u Gameboard.won
 			int x = prev_move.ind / 9 * 9;
-			if (state.board[x] == state.board[x+1] == state.board[x+2] != '.'){
+			if (state.board[x] == state.board[x+1] && state.board[x+1] == state.board[x+2] && state.board[x+2] != '.'){
 				state.won[prev_move.ind / 9] = prev_move.sign;
 			}
-			else if (state.board[x+3] == state.board[x+4] == state.board[x+5] != '.'){
+			else if (state.board[x+3] == state.board[x+4] && state.board[x+4] == state.board[x+5] && state.board[x+5] != '.'){
 				state.won[prev_move.ind / 9] = prev_move.sign;
 			}
-			else if (state.board[x+6] == state.board[x+7] == state.board[x+8] != '.'){
+			else if (state.board[x+6] == state.board[x+7] && state.board[x+7] == state.board[x+8] && state.board[x+8] != '.'){
 				state.won[prev_move.ind / 9] = prev_move.sign;
 			}
-			else if (state.board[x] == state.board[x+3] == state.board[x+6] != '.'){
+			else if (state.board[x] == state.board[x+3] && state.board[x+3] == state.board[x+6] && state.board[x+6] != '.'){
 				state.won[prev_move.ind / 9] = prev_move.sign;
 			}
-			else if (state.board[x+1] == state.board[x+4] == state.board[x+7] != '.'){
+			else if (state.board[x+1] == state.board[x+4] && state.board[x+4] == state.board[x+7] && state.board[x+7] != '.'){
 				state.won[prev_move.ind / 9] = prev_move.sign;
 			}
-			else if (state.board[x+2] == state.board[x+5] == state.board[x+8] != '.'){
+			else if (state.board[x+2] == state.board[x+5] && state.board[x+5] == state.board[x+8] && state.board[x+8] != '.'){
 				state.won[prev_move.ind / 9] = prev_move.sign;
 			}
-			else if (state.board[x] == state.board[x+4] == state.board[x+8] != '.'){
+			else if (state.board[x] == state.board[x+4] && state.board[x+4] == state.board[x+8] && state.board[x+8] != '.'){
 				state.won[prev_move.ind / 9] = prev_move.sign;
 			}
-			else if (state.board[x+2] == state.board[x+4] == state.board[x+6] != '.'){
+			else if (state.board[x+2] == state.board[x+4] && state.board[x+4] == state.board[x+6] && state.board[x+6] != '.'){
 				state.won[prev_move.ind / 9] = prev_move.sign;
 			}
 			else{ //Ako nitko nije pobijedio, provjerava je li potpuno popunjeno
@@ -103,6 +103,97 @@ class GameRules{ //Objekt cije metode predstavljaju pravile igre i moguce poteze
 					state.won[prev_move.ind / 9] = 'w';
 				}
 			}
+		}
+		
+		int is_game_over(Gameboard state){ //Provjerava je li igra gotova. Ako je, vraca rezultat
+			char ret = 'n';
+			if (state.won[0] == state.won[1] && state.won[1] == state.won[2] && state.won[2] != '.' && state.won[2] != 'w'){
+				ret = state.won[0];
+			}
+			else if (state.won[3] == state.won[4] && state.won[4] == state.won[5] && state.won[5] != '.' && state.won[5] != 'w'){
+				ret = state.won[3];
+			}
+			else if (state.won[6] == state.won[7] && state.won[7] == state.won[8] && state.won[8] != '.' && state.won[8] != 'w'){
+				ret = state.won[6];
+			}
+			else if (state.won[0] == state.won[3] && state.won[3] == state.won[6] && state.won[6] != '.' && state.won[6] != 'w'){
+				ret = state.won[0];
+			}
+			else if (state.won[1] == state.won[4] && state.won[4] == state.won[7] && state.won[7] != '.' && state.won[7] != 'w'){
+				ret = state.won[1];
+			}
+			else if (state.won[2] == state.won[5] && state.won[5] == state.won[8] && state.won[8] != '.' && state.won[8] != 'w'){
+				ret = state.won[2];
+			}
+			else if (state.won[0] == state.won[4] && state.won[4] == state.won[8] && state.won[8] != '.' && state.won[8] != 'w'){
+				ret = state.won[0];
+			}
+			else if (state.won[2] == state.won[4] && state.won[4] == state.won[6] && state.won[6] != '.' && state.won[6] != 'w'){
+				ret = state.won[2];
+			}
+			else{ //Ako nitko nije pobijedio, a sva 3x3 polja su popunjena zauzeta
+				int flag = 0;
+				for (int i=0;i<9;++i){
+					if (state.won[i] != '.') ++flag;
+				}
+				if (flag == 9) ret = 'w';
+			}
+			if (ret == 'n') return 0; //Igra jos traje
+			else if (ret == 'o') return 1; //Kruzic je pobijedio
+			else if (ret == 'x') return -1; //Krizic je pobijedio
+			else return -2; //Izjednaceno je
+		}
+		
+		void make_move(Gameboard &state, move potez){
+			state.board[potez.ind] = potez.sign;
+		}
+	
+};
+
+class Node{ //Objekt koji predstavlja cvor u game tree-u
+	
+	public:
+		
+		Gameboard state;
+		int ind;
+		move parent_move;
+		vector<int> children;
+		int parent;
+		int wins;
+		int visits;
+		vector<move> children_moves;
+		
+		Node(Gameboard a, int b, move c, vector<int> d, int e, int f, int g, vector<move> h){
+			state = a;
+			ind = b;
+			parent_move = c;
+			children = d;
+			parent = e;
+			wins = f;
+			visits = g;
+			children_moves = h;
+		}
+};
+
+class MonteCarlo{ //Metode i komponente MCTS algoritma
+	
+	public:
+		
+		GameRules rules;
+		vector<Node> tree; //Sprema sve cvorove u listu
+		
+		vector<double> UCB1(Node node){
+			double c = 2; //exploration vs exploitation parametar
+			vector<double> ret;
+			for (int i=0;i<node.children.size();++i){
+				Node temp = tree[i];
+				if (temp.visits == 0){
+					ret.push_back(1000000); //Ako nije posjeceno dodaj infinity (dijeljenje s nulom)
+					continue;
+				}
+				ret.push_back(temp.wins/temp.visits + c*sqrt((log(tree[temp.parent].visits))/temp.visits));
+			}
+			return ret;
 		}
 	
 };
@@ -132,6 +223,14 @@ testmove.sign = 'x';
 board.board[9] = 'x';
 board.board[12] = 'x';
 board.board[15] = 'x';
+rules.is_3x3_taken(board, testmove);
+for (int i=0;i<9;++i) cout << board.won[i] << " ";
+cout  << endl;
+board.board[0] = 'o';
+board.board[1] = 'o';
+board.board[2] = 'o';
+testmove.ind = 2;
+testmove.sign = 'o';
 rules.is_3x3_taken(board, testmove);
 for (int i=0;i<9;++i) cout << board.won[i] << " ";
 
