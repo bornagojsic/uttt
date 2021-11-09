@@ -221,7 +221,7 @@ class Run(): #Izvrsavanje programa
             nodeind = mcts.selection(mcts.tree[1])
             mcts.expansion(mcts.tree[nodeind])
             if mcts.tree[nodeind].children != []:
-                nodeind = mcts.tree[nodeind].children[0]
+                nodeind = mcts.tree[nodeind].children[argmax(mcts.UCB1(mcts.tree[nodeind]))]
             result = mcts.simulation(mcts.tree[nodeind])
             mcts.backpropagation(mcts.tree[nodeind], result)
         nodeind = 1
