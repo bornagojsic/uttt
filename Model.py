@@ -1,6 +1,5 @@
 import math
 import random
-import copy
 
 move_keys = { #Za I/O
         "A9":0, "B9":1, "C9":2, "A8":3, "B8":4, "C8":5, "A7":6, "B7":7, "C7":8,
@@ -28,6 +27,14 @@ class GameBoard(): #Igraca ploca
     def __init__(self):
         self.board = ["."]*81
         self.won = ["."]*9 #Koja 3x3 polja su uzeta/popunjena
+
+    def deepcopy_self(self): #Vraca deepcopy sebe jer je copy.deepcopy spor
+        ret = GameBoard()
+        for i in range (81):
+            ret.board[i] = self.board[i]
+        for i in range (9):
+            ret.won[i] = self.won[i]
+        return ret
 
     def print_won(self): #Ispisuje stanje 3x3 polja (won)
         for i in range (3):
@@ -171,7 +178,7 @@ class MonteCarlo(): #Metode i komponente MCTS algoritma
             return False
         if node.children_moves != []:
             move = node.children_moves.pop()
-            board = copy.deepcopy(node.state)
+            board = node.state.deepcopy_self()
             self.rules.make_move(board, move)
             self.rules.is_3x3_taken(board, move)
             child = Node(board, len(self.tree), move, children=[], parent=node.ind)
@@ -180,8 +187,8 @@ class MonteCarlo(): #Metode i komponente MCTS algoritma
             node.children.append(child.ind)
 
     def simulation(self, node): #Simulira nasumicne poteze do kraja igre i vraca rezultat
-        board = copy.deepcopy(node.state)
-        move = copy.deepcopy(node.parent_move)
+        board = node.state.deepcopy_self()
+        move = [node.parent_move[0], node.parent_move[1]]
         while True:
             if self.rules.is_game_over(board):
                 break
