@@ -193,7 +193,8 @@ class MonteCarlo(): #Metode i komponente MCTS algoritma
             if self.rules.is_game_over(board):
                 break
             moves = self.rules.get_legal_moves(board, move)
-            move = moves[random.randint(0, len(moves)-1)]
+            rand_ind = int(random.random() * len(moves))
+            move = moves[rand_ind]
             self.rules.make_move(board, move)
             self.rules.is_3x3_taken(board, move)
         return self.rules.is_game_over(board)
