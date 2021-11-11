@@ -79,10 +79,10 @@ class Generate_Data():
                 self.X_wons[i] = temp[:]
             for i in range (len(self.X_boards)):
                 self.X.append([self.X_boards[i], self.X_wons[i]])
-            self.X = np.array(self.X)
-            self.Y = np.array(self.Y)
-            np.save("training_data_X.npy", self.X)
-            np.save("training_data_Y.npy", self.Y)
+        self.X = np.array(self.X)
+        self.Y = np.array(self.Y)
+        np.save("training_data_X.npy", self.X)
+        np.save("training_data_Y.npy", self.Y)
 
 execute = Generate_Data()
 execute.make_data()    
