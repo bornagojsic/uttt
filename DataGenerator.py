@@ -68,7 +68,10 @@ class Generate_Data():
         for game in range (niter):
             self.X_boards = []
             self.X_wons = []
-            result = self.play_game(diff1, diff2)
+            if game % 2 == 0:
+                result = self.play_game(diff1, diff2)
+            else:
+                result = self.play_game(diff2, diff1)
             for i in range (len(self.X_boards)):
                 self.Y.append(result)
             for i in range (len(self.X_wons)):
