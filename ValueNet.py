@@ -41,12 +41,12 @@ class ValueNet(nn.Module):
             
         )
 
-        def forward(self, x):
-            x = self.convs(x)
-            x = torch.flatten(x)
-            self.flattened_shape = x.size(dim=1)
-            x = self.tail(x)
-            return x
+    def forward(self, x):
+        x = self.convs(x)
+        x = torch.flatten(x)
+        self.flattened_shape = x.size(dim=1)
+        x = self.tail(x)
+        return x
 
 class TrainModel():
     
