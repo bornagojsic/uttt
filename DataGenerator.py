@@ -2,6 +2,7 @@ from Pure_MCTS import GameBoard
 from Pure_MCTS import MonteCarlo
 from Pure_MCTS import GameRules
 from Pure_MCTS import Node
+from tqdm import tqdm
 import numpy as np
 #Turn characters into integers
 
@@ -65,7 +66,7 @@ class Generate_Data():
         diff2 = int(input("Jacina drugog modela: "))
         niter = int(input("Broj partija: "))
 
-        for game in range (niter):
+        for game in tqdm(range (niter)):
             self.X_boards = []
             self.X_wons = []
             if game % 2 == 0:
