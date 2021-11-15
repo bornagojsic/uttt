@@ -35,14 +35,15 @@ class ValueNet(nn.Module):
         )
 
         self.tail = nn.Sequential(
-            nn.Linear(in_features=2560, out_features=1)   
+            nn.Linear(in_features=2560, out_features=512),
+            nn.Linear(in_features=512, out_features=1)
         )
 
     def forward(self, x):
         x = self.convs(x)
         x = x.view(-1, 2560)
         x = self.tail(x)
-        return torch.clamp(x, min=-1, max=1)
+        return x
 
 class TrainModel():
     
