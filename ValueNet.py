@@ -1,13 +1,12 @@
 import torch
 import torch.nn as nn
-import torch.functional as F
 import torch.optim as optim
 from tqdm import tqdm
 import numpy as np
 
 channels = 4
 DIM = 64
-EPOCHS = 50
+EPOCHS = 25
 BATCH_SIZE = 8
 
 if torch.cuda.is_available():
@@ -19,6 +18,8 @@ class ValueNet(nn.Module):
 
     def __init__(self):
         super().__init__()
+
+        self._to_linear = None
 
         self.convs = nn.Sequential(
             nn.Conv1d(in_channels=channels, out_channels=DIM, kernel_size=4, stride=2, padding=1),
@@ -34,14 +35,18 @@ class ValueNet(nn.Module):
             nn.ReLU()
         )
 
+        x = torch.rand(1, 4, 81)
+        x = self.convs(x)
+        self._to_linear = x[0].shape[0] * x[0].shape[1]
+
         self.tail = nn.Sequential(
-            nn.Linear(in_features=2560, out_features=512),
-            nn.Linear(in_features=512, out_features=1)
+            nn.Linear(in_features=self._to_linear, out_features=512),
+            nn.Linear(in_features=512, out_features=1)   
         )
 
     def forward(self, x):
         x = self.convs(x)
-        x = x.view(-1, 2560)
+        x = x.view(-1, self._to_linear)
         x = self.tail(x)
         return x
 
@@ -75,10 +80,10 @@ class TrainModel():
         for epoch in range (1, EPOCHS+1):
             print(epoch)
             cumloss_train = 0
-            for i in tqdm(range(0, len(training_data_X), BATCH_SIZE)):
-                leftover = min(i+BATCH_SIZE, len(training_data_X))
-                BATCH_X = training_data_X[i:leftover]
-                BATCH_Y = training_data_Y[i:leftover].view(-1, 1)
+            data_len = len(training_data_X) // BATCH_SIZE * BATCH_SIZE
+            for i in tqdm(range(0, data_len, BATCH_SIZE)):
+                BATCH_X = training_data_X[i:i+BATCH_SIZE].view(BATCH_SIZE, 4, 81)
+                BATCH_Y = training_data_Y[i:i+BATCH_SIZE].view(-1, 1)
 
                 self.model.zero_grad()
                 output = self.model(BATCH_X)
