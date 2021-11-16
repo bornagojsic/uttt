@@ -49,14 +49,16 @@ class AlphaBeta():
             return inv*ret
         A = []
         children = self.rules.get_legal_moves(state, move)
-        if depth == 6:
+        if depth ==4:
             return self.evaluation(state)
         for child in children:
             board = state.deepcopy_self()
             self.rules.make_move(board, child)
             self.rules.is_3x3_taken(board, child)
             A.append(inv*self.minimax(board, child, depth+1, -inv))
-        return children[np.argmax(A)]
+        if depth == 0:
+            return children[np.argmax(A)]
+        return max(A)
 
 class Run():
 
