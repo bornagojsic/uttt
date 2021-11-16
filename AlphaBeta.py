@@ -49,8 +49,8 @@ class AlphaBeta():
             return inv*ret
         A = []
         children = self.rules.get_legal_moves(state, move)
-        if depth ==4:
-            return self.evaluation(state)
+        if depth == 4:
+            return inv*self.evaluation(state)
         for child in children:
             board = state.deepcopy_self()
             self.rules.make_move(board, child)
