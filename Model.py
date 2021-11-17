@@ -2,6 +2,7 @@ import random
 import math
 
 C_PARAMETER = 2
+GRIEF_PENALTY = 0.05
 
 def argmax(array):
     maks = array[0]
@@ -70,15 +71,20 @@ class Game():
         for i in range (0, 7, 3):
             if self.won[i] == self.won[i+1] == self.won[i+2] and self.won[i] != 0 and self.won[i] != -2:
                 ret = self.won[i]
+                return ret
         for i in range (0, 3):
             if self.won[i] == self.won[i+3] == self.won[i+6] and self.won[i] != 0 and self.won[i] != -2:
                 ret = self.won[i]
+                return ret
         if self.won[0] == self.won[4] == self.won[8] and self.won[0] != 0 and self.won[0] != -2:
             ret = self.won[0]
+            return ret
         elif self.won[2] == self.won[4] == self.won[6] and self.won[2] != 0 and self.won[2] != -2:
             ret = self.won[2]
+            return ret
         elif 0 not in self.won:
             ret = 0
+            return ret
         else:
             ret = -2
         return ret
@@ -164,6 +170,21 @@ class MCTS(Game):
         if node.parent:
             self.backpropagation_(self.tree[node.parent], result)
 
+    def punish_grief_(self, weights, node):
+
+        for i in range(len(node.children)):
+            child = self.tree[node.children[i]]
+            current = child.state.won.count(-1)
+            for gc_ind in child.children:
+                grandchild = self.tree[gc_ind]
+                if grandchild.state.is_terminal() == -1:
+                    weights[i] = 0
+                    break
+                future = grandchild.state.won.count(-1)
+                if future > current:
+                    weights[i] -= GRIEF_PENALTY
+                    break
+
     def search(self, state, move, difficulty):
 
         self.tree = []
@@ -179,6 +200,9 @@ class MCTS(Game):
             self.backpropagation_(node, result)
         node = self.tree[1]
         weights = [self.tree[x].wins / self.tree[x].visits for x in node.children]
+        print(weights)
+        self.punish_grief_(weights, node)
+        print(weights)
         move = self.tree[node.children[argmax(weights)]].parent_move
         return move
 
