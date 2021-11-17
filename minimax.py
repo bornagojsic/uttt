@@ -1,6 +1,4 @@
-import random
-
-DEPTH = 4
+DEPTH = 6
 
 def argmax(array):
     maks = array[0]
@@ -91,7 +89,60 @@ class Alg(Game):
 
     def evaluation(self, state):
 
-        return [-1, 1][random.randint(0, 1)]
+        locals = []
+        for i in range (0, 73, 9):
+            if state.won[i // 9] != 0:
+                locals.append([state.won[i // 9], 0][state.won[i // 9]==-2])
+            else:
+                locals.append(self.local_evaluation(state.board[i:i+9]))
+        return self.local_evaluation(locals)
+
+    def local_evaluation(self, localb):
+
+        neg = 0
+        poz = 0
+        pairs = 0
+        for i in range (9):
+            if localb[i] < 0:
+                neg += localb[i]
+            elif localb[i] > 0:
+                poz += localb[i]
+        if localb[0] < 0 and localb[1] < 0: #Line
+            pairs += (localb[0] + localb[1])/2
+        if localb[1] < 0 and localb[2] < 0:
+            pairs += (localb[1] + localb[2])/2
+        if localb[3] < 0 and localb[4] < 0:
+            pairs += (localb[3] + localb[4])/2
+        if localb[4] < 0 and localb[5] < 0:
+            pairs += (localb[4] + localb[5])/2
+        if localb[6] < 0 and localb[7] < 0:
+            pairs += (localb[6] + localb[7])/2
+        if localb[7] < 0 and localb[8] < 0:
+            pairs += (localb[7] + localb[8])/2
+        if localb[0] < 0 and localb[3] < 0: #Column
+            pairs += (localb[0] + localb[3])/2
+        if localb[3] < 0 and localb[6] < 0:
+            pairs += (localb[3] + localb[6])/2
+        if localb[1] < 0 and localb[4] < 0:
+            pairs += (localb[1] + localb[4])/2
+        if localb[4] < 0 and localb[7] < 0:
+            pairs += (localb[4] + localb[7])/2
+        if localb[2] < 0 and localb[5] < 0:
+            pairs += (localb[2] + localb[5])/2
+        if localb[5] < 0 and localb[8] < 0:
+            pairs += (localb[5] + localb[8])/2
+        if localb[0] < 0 and localb[4] < 0: #Main diagonal
+            pairs += (localb[0] + localb[4])/2
+        if localb[4] < 0 and localb[8] < 0:
+            pairs += (localb[4] + localb[8])/2
+        if localb[2] < 0 and localb[4] < 0: #Secondary diagonal
+            pairs += (localb[2] + localb[4])/2
+        if localb[4] < 0 and localb[6] < 0:
+            pairs += (localb[4] + localb[6])/2
+        formula = (neg + pairs + (neg - poz))/34
+        return formula
+        
+        
 
     def minimax(self, state, move, depth, inv):
 
