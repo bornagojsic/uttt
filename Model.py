@@ -1,8 +1,22 @@
 import random
 import math
 
-C_PARAMETER = 2
+C_PARAMETER = math.sqrt(3)
 GRIEF_PENALTY = 0.05
+
+move_keys = {
+            "A9":0, "B9":1, "C9":2, "A8":3, "B8":4, "C8":5, "A7":6, "B7":7, "C7":8,
+            "D9":9, "E9":10, "F9":11, "D8":12, "E8":13, "F8":14, "D7":15, "E7":16, "F7":17,
+            "G9":18, "H9":19, "I9":20, "G8":21, "H8":22, "I8":23, "G7":24, "H7":25, "I7":26,
+            "A6":27, "B6":28, "C6":29, "A5":30, "B5":31, "C5":32, "A4":33, "B4":34, "C4":35,
+            "D6":36, "E6":37, "F6":38, "D5":39, "E5":40, "F5":41, "D4":42, "E4":43, "F4":44,
+            "G6":45, "H6":46, "I6":47, "G5":48, "H5":49, "I5":50, "G4":51, "H4":52, "I4":53,
+            "A3":54, "B3":55, "C3":56, "A2":57, "B2":58, "C2":59, "A1":60, "B1":61, "C1":62,
+            "D3":63, "E3":64, "F3":65, "D2":66, "E2":67, "F2":68, "D1":69, "E1":70, "F1":71,
+            "G3":72, "H3":73, "I3":74, "G2":75, "H2":76, "I2":77, "G1":78, "H1":79, "I1":80
+        }
+
+move_keys_inv = {v: k for k, v in move_keys.items()}
 
 def argmax(array):
     maks = array[0]
@@ -156,7 +170,8 @@ class MCTS(Game):
             if board.is_terminal() != -2:
                 break
             moves = board.get_legal_moves(move)
-            move = moves[random.randint(0, len(moves)-1)]
+            randint = int(random.random()*len(moves))
+            move = moves[randint]
             board.make_move_(move)
         return board.is_terminal()
 
@@ -170,7 +185,7 @@ class MCTS(Game):
         if node.parent:
             self.backpropagation_(self.tree[node.parent], result)
 
-    def punish_grief_(self, weights, node):
+    def punish_grief_(self, weights, node): #odigro grief potez?
 
         for i in range(len(node.children)):
             child = self.tree[node.children[i]]
@@ -179,6 +194,9 @@ class MCTS(Game):
                 grandchild = self.tree[gc_ind]
                 if grandchild.state.is_terminal() == -1:
                     weights[i] = 0
+                    break
+                if grandchild.state.won[4] == -1 and child.state.won[4] != -1:
+                    weights[i] -= 2*GRIEF_PENALTY
                     break
                 future = grandchild.state.won.count(-1)
                 if future > current:
@@ -200,9 +218,9 @@ class MCTS(Game):
             self.backpropagation_(node, result)
         node = self.tree[1]
         weights = [self.tree[x].wins / self.tree[x].visits for x in node.children]
-        print(weights)
         self.punish_grief_(weights, node)
-        print(weights)
+        for i in range(len(weights)):
+            print(move_keys_inv[self.tree[node.children[i]].parent_move[0]], weights[i])
         move = self.tree[node.children[argmax(weights)]].parent_move
         return move
 
@@ -212,21 +230,10 @@ class Run(MCTS):
     def __init__(self):
         
         self.game = Game()
-        self.move_keys = {
-            "A9":0, "B9":1, "C9":2, "A8":3, "B8":4, "C8":5, "A7":6, "B7":7, "C7":8,
-            "D9":9, "E9":10, "F9":11, "D8":12, "E8":13, "F8":14, "D7":15, "E7":16, "F7":17,
-            "G9":18, "H9":19, "I9":20, "G8":21, "H8":22, "I8":23, "G7":24, "H7":25, "I7":26,
-            "A6":27, "B6":28, "C6":29, "A5":30, "B5":31, "C5":32, "A4":33, "B4":34, "C4":35,
-            "D6":36, "E6":37, "F6":38, "D5":39, "E5":40, "F5":41, "D4":42, "E4":43, "F4":44,
-            "G6":45, "H6":46, "I6":47, "G5":48, "H5":49, "I5":50, "G4":51, "H4":52, "I4":53,
-            "A3":54, "B3":55, "C3":56, "A2":57, "B2":58, "C2":59, "A1":60, "B1":61, "C1":62,
-            "D3":63, "E3":64, "F3":65, "D2":66, "E2":67, "F2":68, "D1":69, "E1":70, "F1":71,
-            "G3":72, "H3":73, "I3":74, "G2":75, "H2":76, "I2":77, "G1":78, "H1":79, "I1":80
-        }
 
     def inputmove(self, prev_player):
 
-        ret = [self.move_keys[input()], [-1, 1][prev_player==-1]]
+        ret = [move_keys[input()], [-1, 1][prev_player==-1]]
         return ret
 
     def play_game(self):
@@ -237,10 +244,7 @@ class Run(MCTS):
         self.game.make_move_(move)
         while True:
             move = self.search(self.game, move, difficulty)
-            for element in self.move_keys:
-                if self.move_keys[element] == move[0]:
-                    print(element)
-                    break
+            print(move_keys_inv[move[0]])
             self.game.make_move_(move)
             if self.game.is_terminal() != -2:
                 print(self.game.is_terminal(), "wins!")
