@@ -2,9 +2,10 @@ import random
 import math
 
 C_PARAMETER = math.sqrt(3)
-GRIEF_PENALTY = 0.05
+GRIEF_PENALTY = 0.2
+GRIEF_PENALTY_MIDDLE = 0.2
 
-move_keys = {
+move_keys = { 
             "A9":0, "B9":1, "C9":2, "A8":3, "B8":4, "C8":5, "A7":6, "B7":7, "C7":8,
             "D9":9, "E9":10, "F9":11, "D8":12, "E8":13, "F8":14, "D7":15, "E7":16, "F7":17,
             "G9":18, "H9":19, "I9":20, "G8":21, "H8":22, "I8":23, "G7":24, "H7":25, "I7":26,
@@ -31,8 +32,8 @@ class Game():
 
     def __init__(self):
 
-        self.board = [0]*81
-        self.won = [0]*9
+        self.board = [0]*81 
+        self.won = [0]*9 
 
     def deepcopy_self(self):
 
@@ -185,7 +186,7 @@ class MCTS(Game):
         if node.parent:
             self.backpropagation_(self.tree[node.parent], result)
 
-    def punish_grief_(self, weights, node): #odigro grief potez?
+    def punish_grief_(self, weights, node):
 
         for i in range(len(node.children)):
             child = self.tree[node.children[i]]
@@ -196,11 +197,11 @@ class MCTS(Game):
                     weights[i] = 0
                     break
                 if grandchild.state.won[4] == -1 and child.state.won[4] != -1:
-                    weights[i] -= 2*GRIEF_PENALTY
+                    weights[i] -= GRIEF_PENALTY_MIDDLE*weights[i]
                     break
                 future = grandchild.state.won.count(-1)
                 if future > current:
-                    weights[i] -= GRIEF_PENALTY
+                    weights[i] -= GRIEF_PENALTY*weights[i]
                     break
 
     def search(self, state, move, difficulty):
@@ -217,7 +218,7 @@ class MCTS(Game):
             result = self.simulation(node)
             self.backpropagation_(node, result)
         node = self.tree[1]
-        weights = [self.tree[x].wins / self.tree[x].visits for x in node.children]
+        weights = [self.tree[x].visits for x in node.children]
         self.punish_grief_(weights, node)
         for i in range(len(weights)):
             print(move_keys_inv[self.tree[node.children[i]].parent_move[0]], weights[i])
@@ -242,6 +243,7 @@ class Run(MCTS):
         prev_player = 1
         move = self.inputmove(prev_player)
         self.game.make_move_(move)
+        global move_counter
         while True:
             move = self.search(self.game, move, difficulty)
             print(move_keys_inv[move[0]])
