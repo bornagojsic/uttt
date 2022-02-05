@@ -262,5 +262,6 @@ class Run(MCTS):
                 print(self.game.is_terminal(), "wins!")
                 break
 
-test = Run()
-test.play_game()
+if __name__ == '__main__':
+            test = Run()
+            test.play_game()
