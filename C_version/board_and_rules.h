@@ -1,10 +1,13 @@
+#ifndef BOARD_AND_RULES_H
+#define BOARD_AND_RULES_H
+
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
 
 typedef struct Board{ //Game board
-	char board[81]; //Game board: -1 cross, 1 circle, 0 empty
-	char won[9]; //Which local boards are taken/filled up
+	int board[81]; //Game board: -1 cross, 1 circle, 0 empty
+	int won[9]; //Which local boards are taken/filled up
 } Board;
 
 Board deepcopy_board(Board *board){ //Returns a deepcopy of a Board structure
@@ -122,3 +125,5 @@ void make_move_(Board *board, int move[2]){
 	update_locals_(board, move);
 	
 }
+
+#endif
