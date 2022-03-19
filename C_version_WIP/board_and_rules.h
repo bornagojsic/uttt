@@ -27,7 +27,7 @@ int **get_legal_moves(Board *board, int move[2]){ //Returns a list of all possib
 	
 	int **ret;
 	ret = malloc(sizeof(int*) * 81);
-	for (int i=0;i<81;++i) ret[i] = malloc(sizeof(int*) * 2);
+	for (int i=0;i<81;++i) ret[i] = malloc(sizeof(int) * 2);
 	for (int i=0;i<81;++i){ //Sets all values to -1 to not confuse with move at location 0 (A9)
 		for (int j=0;j<2;++j) ret[i][j] = -1;
 	}
@@ -112,7 +112,6 @@ int is_terminal(Board *board){ //Checks if the game is over
 		if (!board->won[i]) flag = 0;
 	}
 	if (flag){
-		printf("!!!!");
 		return 0;
 	}
 	
