@@ -43,9 +43,6 @@ void output_move(int move[2]){
 	else if (27 <= move[0] && move[0] <= 35) ret = (char)((int)('A') + (move[0] % 3));	
 	else if (36 <= move[0] && move[0] <= 44) ret = (char)((int)('D') + (move[0] % 3));
 	else if (45 <= move[0] && move[0] <= 53) ret = (char)((int)('G') + (move[0] % 3));
-	else if (27 <= move[0] && move[0] <= 35) ret = (char)((int)('A') + (move[0] % 3));	
-	else if (36 <= move[0] && move[0] <= 44) ret = (char)((int)('D') + (move[0] % 3));
-	else if (45 <= move[0] && move[0] <= 53) ret = (char)((int)('G') + (move[0] % 3));
 	else if (54 <= move[0] && move[0] <= 62) ret = (char)((int)('A') + (move[0] % 3));	
 	else if (63 <= move[0] && move[0] <= 71) ret = (char)((int)('D') + (move[0] % 3));
 	else if (72 <= move[0] && move[0] <= 80) ret = (char)((int)('G') + (move[0] % 3));
@@ -63,7 +60,7 @@ int main(){
 	int difficulty;
 	Board game;
 	for (int i=0;i<81;++i) game.board[i] = 0;
-	for (int i=0;i<9;++i) game.board[i] = 0;
+	for (int i=0;i<9;++i) game.won[i] = 0;
 	int prev_player = 1;
 	
 	printf("Hello! Please enter the desired difficulty (cca 50 000 -> decent)\n"); fflush(stdout);
