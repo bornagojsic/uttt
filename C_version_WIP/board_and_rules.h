@@ -66,18 +66,22 @@ void update_locals_(Board *board, int move[2]){ //Inplace; checks if the local b
 	for (int i=0;i<7;i+=3){ //Rows
 		if (board->board[x+i] == board->board[x+i+1] && board->board[x+i] == board->board[x+i+2] && board->board[x+i] != 0){
 			board->won[move[0] / 9] = move[1];
+			return;
 		}
 	}
 	for (int i=0;i<3;++i){ //Columns
 		if (board->board[x+i] == board->board[x+i+3] && board->board[x+i] == board->board[x+i+6] && board->board[x+i] != 0){
 			board->won[move[0] / 9] = move[1];
+			return;
 		}
 	}
 	if (board->board[x] == board->board[x+4] && board->board[x] == board->board[x+8] && board->board[x] != 0){ //Main diagonal
 		board->won[move[0] / 9] = move[1];
+		return;
 	}
 	else if (board->board[x+2] == board->board[x+4] && board->board[x+2] == board->board[x+6] && board->board[x+2] != 0){ //Secondary diagonal
 		board->won[move[0] / 9] = move[1];
+		return;
 	}
 	else{ //If noone won the local board, checks if it is fully filled up
 		int flag = 0;
@@ -85,6 +89,7 @@ void update_locals_(Board *board, int move[2]){ //Inplace; checks if the local b
 			if (board->board[i]) ++flag;
 		}
 		if (flag == 9) board->won[move[0] / 9] = -2;
+		return;
 	}
 	
 }
