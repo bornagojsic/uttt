@@ -1,4 +1,4 @@
-#ifndef MCTS_ALGORITHM_H
+#ifndef MCTS_ALGORITHM_H //grief penalty not yet implemented
 #define MCTS_ALGORITHM_H
 
 #include<stdio.h>
@@ -113,7 +113,7 @@ void expansion_(Node *node, Node tree[]){ //Inplace; expands the node by one chi
 	
 }
 
-int simulation(Node *node, Node tree[], int d1){ //!!!!!!!!!!!!!!!!!!!!!!!!! CRASHES HERE
+int simulation(Node *node, Node tree[], int d1){
 
 	
 	Board board = deepcopy_board(&node->state);
