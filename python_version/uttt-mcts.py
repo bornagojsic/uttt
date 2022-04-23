@@ -1,9 +1,7 @@
 import random
 import math
 
-C_PARAMETER = math.sqrt(3) #Exploitation vs. Exploration hyperparamter in UCB1
-GRIEF_PENALTY = 0.2 #Penalizes moves that let the enemy take a local board
-GRIEF_PENALTY_MIDDLE = 0.2 #Seperately penalizes moves that let the enemy take the central local board
+C_PARAMETER = 3.5 #Exploitation vs. Exploration hyperparamter in UCB1
 
 move_keys = { #For I/O
             "A9":0, "B9":1, "C9":2, "A8":3, "B8":4, "C8":5, "A7":6, "B7":7, "C7":8,
@@ -136,7 +134,7 @@ class MCTS(Game): #Monte Carlo Tree Search Algorithm
             if temp.visits == 0: #If it isn't visited, the value is inf
                 ret.append(123456)
                 continue
-            ret.append(temp.wins / temp.visits + c*(math.sqrt(node.visits)/temp.visits))
+            ret.append(temp.wins / temp.visits + c * math.sqrt(math.log(node.visits)/temp.visits))
         return ret
 
     def selection(self, node): #"Descends" down the tree according to UCB1 to the best node
@@ -186,24 +184,6 @@ class MCTS(Game): #Monte Carlo Tree Search Algorithm
         if node.parent:
             self.backpropagation_(self.tree[node.parent], result)
 
-    def punish_grief_(self, weights, node): #Punishes bad moves (check README)
-
-        for i in range(len(node.children)):
-            child = self.tree[node.children[i]]
-            current = child.state.won.count(-1) #Current number of local boards the enemy has
-            for gc_ind in child.children:
-                grandchild = self.tree[gc_ind]
-                if grandchild.state.is_terminal() == -1: #If the enemy can win next move, don't play this
-                    weights[i] = 0
-                    break
-                if grandchild.state.won[4] == -1 and child.state.won[4] != -1: #Punishes a move that lets the enemy take the center local board
-                    weights[i] -= GRIEF_PENALTY_MIDDLE*weights[i]
-                    break
-                future = grandchild.state.won.count(-1) 
-                if future > current: #Punishes a move that lets the enemy take some local board (not center)
-                    weights[i] -= GRIEF_PENALTY*weights[i]
-                    break
-
     def search(self, state, move, difficulty): #Finds the best move from some game state - MCTS algorithm
 
         self.tree = []
@@ -219,9 +199,6 @@ class MCTS(Game): #Monte Carlo Tree Search Algorithm
             self.backpropagation_(node, result)
         node = self.tree[1]
         weights = [self.tree[x].visits for x in node.children] #Selects the most visited child
-        self.punish_grief_(weights, node)
-        for i in range(len(weights)): #Prints how "good" each move is
-            print(move_keys_inv[self.tree[node.children[i]].parent_move[0]], weights[i])
         move = self.tree[node.children[argmax(weights)]].parent_move
         return move
 
