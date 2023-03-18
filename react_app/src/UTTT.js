@@ -59,7 +59,7 @@ function UTTT () {
   }
 
   const sendMove = (move) => {
-    fetch('http://bornagojsic.pythonanywhere.com/uttt', {
+    fetch('https://bornagojsic.pythonanywhere.com/uttt', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ID: gameID, move: move })
