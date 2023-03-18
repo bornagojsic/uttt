@@ -59,20 +59,35 @@ function UTTT () {
   }
 
   const sendMove = (move) => {
-    fetch('http://127.0.0.1:5000/uttt', {
+    fetch('http://bornagojsic.pythonanywhere.com/uttt', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ID: gameID, move: move })
     })
       .then(response => response.json())
       .then(data => {
-        // ovo stavit u novu funkciju
+        // ovo stavit u novu funkciju handleData
         
         console.log("Gotten:", data);
+        boardWinners = data.boardWinners;
+
+        if (data.isOver !== "false") {
+          if (data.move === "") {
+            // the player has won
+            showBoardWinner("O", Math.floor(moveToKeys[move] / 9));
+            console.log("GAME OVER!");
+            alert('Game Over!');
+            for (let i = 0; i < 9; i++) {
+              disableBoard(i);
+            }
+            return;
+            // gameOver = true;
+          }
+        }
+        
         const moveKey = moveToKeys[data.move];
         const button = buttonsRef.current[moveKey];
         button.className = button.className.replace('empty', 'X');
-        boardWinners = data.boardWinners;
         nextPlayerBoard = moveKey % 9;
         console.log("next move must be on board:", nextPlayerBoard);
         console.log("boardwinners:", boardWinners, Math.floor(moveKey / 9), Math.floor(moveToKeys[move] / 9));
@@ -92,14 +107,17 @@ function UTTT () {
           showBoardWinner("O", Math.floor(moveToKeys[move] / 9));
         }
 
-
         if (data.isOver !== "false") {
+          // the AI has won
+          // this next line is redundant but this all isOver needs its own function
+          showBoardWinner("X", Math.floor(moveKey / 9)); 
           console.log("GAME OVER!");
           alert('Game Over!');
           for (let i = 0; i < 9; i++) {
             disableBoard(i);
           }
-          // gameOver = true;     
+          return;
+          // gameOver = true;
         }
       });
   };
