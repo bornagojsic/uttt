@@ -1,0 +1,167 @@
+/* Variables */
+
+:root {
+	/* --btn-size: min(6vh, 5vw); */
+	--btn-size: 5vmin;
+	--little-board-size: 25vmin;
+}
+
+/* Centering and size */
+
+div#container {
+	position: relative;
+	top: 5vh;
+	display: flex;
+    justify-content: center;
+}
+
+/* Big Tic Tac Toe boards */
+
+div.table {
+	display: grid;
+	grid-template-columns: repeat(3, var(--little-board-size));
+	grid-template-rows: repeat(3, var(--little-board-size));
+	gap: 3px;
+	background-color: #666;
+	border: none;
+}
+
+div.board {
+	display: grid;
+	place-content: center;
+	background-color: #fff;
+}
+
+/* table#big-board {
+	border-collapse: collapse;
+}
+
+td.board-col {
+	position: relative;
+	border: 3px solid #666;
+	padding: 2px;
+	margin: 0;
+}
+
+td.board-col-0,
+td.board-col-1,
+td.board-col-2 {
+	border-top: none;
+}
+
+td.board-col-0,
+td.board-col-3,
+td.board-col-6 {
+	border-left: none;
+}
+
+td.board-col-6,
+td.board-col-7,
+td.board-col-8 {
+	border-bottom: none;
+}
+
+td.board-col-2,
+td.board-col-5,
+td.board-col-8 {
+	border-right: none;
+} */
+
+/* Small Tic Tac Toe boards */
+
+table.little-board {
+	border-collapse: collapse;
+}
+
+td.little-board-col {
+	position: relative;
+	border: 1.5px solid #888;
+	padding: 0;
+	margin: 0;
+}
+
+td.little-board-col-0,
+td.little-board-col-1,
+td.little-board-col-2 {
+	border-top: none;
+}
+
+td.little-board-col-0,
+td.little-board-col-3,
+td.little-board-col-6 {
+	border-left: none;
+}
+
+td.little-board-col-6,
+td.little-board-col-7,
+td.little-board-col-8 {
+	border-bottom: none;
+}
+
+td.little-board-col-2,
+td.little-board-col-5,
+td.little-board-col-8 {
+	border-right: none;
+}
+
+/* Buttons */
+
+button {
+	position: relative;
+	height: var(--btn-size);
+	width: var(--btn-size);
+	background-color: rgba(204, 204, 204, 0.75);
+	margin: calc(var(--btn-size) / 4);
+	border: 1px;
+	border-radius: calc(var(--btn-size) / 4);
+}
+
+button.empty.enabled {
+	z-index: 0;
+	background-color: rgba(100, 209, 245, 0.5);
+}
+
+button.empty.enabled:hover {
+	background-color: #48c5ef;
+	cursor: pointer;
+}
+
+button.O {
+	background-image: url('../img/o.png');
+	background-size: var(--btn-size);
+}
+
+button.X {
+	background-image: url('../img/x.png');
+	background-size: var(--btn-size);
+}
+
+/* Won small Tic Tac Toe boards */
+
+div.O {
+	position: absolute;
+	z-index: 1;
+	background-image: url('../img/o.png');
+	background-repeat: no-repeat;
+	background-size: cover;
+	opacity: 0.65;
+	height: var(--little-board-size);
+	width: var(--little-board-size);
+}
+
+div.X {
+	position: absolute;
+	z-index: 1;
+	background-image: url('../img/x.png');
+	background-repeat: no-repeat;
+	background-size: cover;
+	opacity: 0.65;
+	height: var(--little-board-size);
+	width: var(--little-board-size);
+}
+
+div.O button,
+div.X button {
+	position: relative;
+	z-index: -1;
+}
