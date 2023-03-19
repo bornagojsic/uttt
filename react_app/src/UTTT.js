@@ -1,4 +1,3 @@
-import './App.css';
 import './UTTT.css';
 import React, { useState, useEffect, useRef } from 'react';
 
@@ -168,11 +167,7 @@ function UTTT () {
     const boards = Array(9)
       .fill(null)
       .map(() => ({
-        rows: Array(3)
-          .fill(null)
-          .map(() => 
-            Array(3).fill(null)
-          ),
+        squares: Array(9).fill(null),
         winner: null,
         })
       );
@@ -184,13 +179,13 @@ function UTTT () {
       <div id="container">
         <div className="table" id="big-board">
           {boards.map((board, boardIndex) => (
-            <div className="board" key={boardIndex}>
+            <div className="board" key={`board-${boardIndex}`}>
               <TicTacToeBoard
-                    key={boardIndex}
-                    board={board}
-                    onClick={(index) => handleClick(index)}
-                    boardIndex={boardIndex}
-                  />
+                key={`ttt-board-${boardIndex}`}
+                board={board}
+                onClick={(index) => handleClick(index)}
+                boardIndex={boardIndex}
+              />
             </div>
           ))}
         </div>
@@ -202,27 +197,19 @@ function UTTT () {
     // render the squares
     return (
       <>
-        <div className="winner" key={(boardIndex + 1) * 9} ref={el => (boardsRef.current[boardIndex] = el)} />
-        <table className="little-board" key={boardIndex}>
-          <thead/>
-          <tbody>
-            {board.rows.map((row, rowIndex) => (
-              <tr className="little-board-row" key={rowIndex}>
-                {row.map((col, colIndex) => (
-                  <td className={`little-board-col little-board-col-${3 * rowIndex + colIndex}`} key={colIndex}>
-                    <Square
-                      key={3 * rowIndex + colIndex}
-                      value={undefined}
-                      onClick={() => onClick(9 * boardIndex + 3 * rowIndex + colIndex)}
-                      index={9 * boardIndex + 3 * rowIndex + colIndex}
-                    />
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-          <tfoot/>
-        </table>
+        <div className="winner" key={`winnerdiv-${boardIndex}`} ref={el => (boardsRef.current[boardIndex] = el)} />
+        <div className="little-table" key={`little-table-${boardIndex}`}>
+          {board.squares.map((square, index) => (
+            <div className="square" key={`square-div-${index}`}>
+              <Square
+                key={`square-${index}`}
+                value={undefined}
+                onClick={() => onClick(9 * boardIndex + index)}
+                index={9 * boardIndex + index}
+              />
+            </div>
+          ))}
+        </div>
       </>
     );
   };
@@ -230,7 +217,7 @@ function UTTT () {
   const Square = ({ value, onClick, index }) => {
     // render the square with the appropriate value and click handler
     return (
-      <button className="empty enabled" onClick={onClick} ref={el => (buttonsRef.current[index] = el)}>
+      <button key={`button-${index}`} className="empty enabled" onClick={onClick} ref={el => (buttonsRef.current[index] = el)}>
         {value}
       </button>
     );

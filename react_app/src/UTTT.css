@@ -32,76 +32,21 @@ div.board {
 	background-color: #fff;
 }
 
-/* table#big-board {
-	border-collapse: collapse;
-}
-
-td.board-col {
-	position: relative;
-	border: 3px solid #666;
-	padding: 2px;
-	margin: 0;
-}
-
-td.board-col-0,
-td.board-col-1,
-td.board-col-2 {
-	border-top: none;
-}
-
-td.board-col-0,
-td.board-col-3,
-td.board-col-6 {
-	border-left: none;
-}
-
-td.board-col-6,
-td.board-col-7,
-td.board-col-8 {
-	border-bottom: none;
-}
-
-td.board-col-2,
-td.board-col-5,
-td.board-col-8 {
-	border-right: none;
-} */
-
 /* Small Tic Tac Toe boards */
 
-table.little-board {
-	border-collapse: collapse;
+div.little-table {
+	display: grid;
+	grid-template-columns: repeat(3, calc(var(--btn-size) * 1.5));
+	grid-template-rows: repeat(3, calc(var(--btn-size) * 1.5));
+	gap: 1.5px;
+	background-color: #888;
+	border: none;
 }
 
-td.little-board-col {
-	position: relative;
-	border: 1.5px solid #888;
-	padding: 0;
-	margin: 0;
-}
-
-td.little-board-col-0,
-td.little-board-col-1,
-td.little-board-col-2 {
-	border-top: none;
-}
-
-td.little-board-col-0,
-td.little-board-col-3,
-td.little-board-col-6 {
-	border-left: none;
-}
-
-td.little-board-col-6,
-td.little-board-col-7,
-td.little-board-col-8 {
-	border-bottom: none;
-}
-
-td.little-board-col-2,
-td.little-board-col-5,
-td.little-board-col-8 {
-	border-right: none;
+div.square {
+	display: grid;
+	place-content: center;
+	background-color: #fff;
 }
 
 /* Buttons */
