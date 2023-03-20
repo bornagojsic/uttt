@@ -1,6 +1,5 @@
 import './UTTT.css';
 import React, { useState, useEffect, useRef } from 'react';
-import ReactSlider from "react-slider";
 
 function UTTT () {
   const gameID = Math.random();
