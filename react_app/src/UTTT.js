@@ -1,10 +1,13 @@
 import './UTTT.css';
 import React, { useState, useEffect, useRef } from 'react';
+import ReactSlider from "react-slider";
 
 function UTTT () {
   const gameID = Math.random();
   const boardsRef = useRef([]);
   const buttonsRef = useRef([]);
+  const inputRef = useRef({value: 37});
+  const spanRef = useRef(null);
 
   const keysToMove = [
     "A9", "B9", "C9", "A8", "B8", "C8", "A7", "B7", "C7",
@@ -58,10 +61,10 @@ function UTTT () {
   }
 
   const sendMove = (move) => {
-    fetch('https://bornagojsic.pythonanywhere.com/uttt', {
+    fetch('http://127.0.0.1:5000/uttt', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ID: gameID, move: move })
+      body: JSON.stringify({ ID: gameID, move: move, numIters: getInputNum() })
     })
       .then(response => response.json())
       .then(data => {
@@ -223,8 +226,43 @@ function UTTT () {
     );
   };
 
+  const handleSliderChange = () => {
+    // console.log(getInputNum());
+    spanRef.current.innerHTML = `Number of simulations: ${getInputNum()}`;
+  }
+
+  const Slider = () => {
+    return (
+      <div id="slider" key="slider-div">
+        <span ref={spanRef}>
+          Number of simulations: {getInputNum()}
+        </span>
+        <input type="range" min="0" max="37" onChange={handleSliderChange} /*value={50}*/ ref={inputRef}/>
+        <span>
+          Note: The waiting time for the AI's move is larger for more simulations
+        </span>
+      </div>
+    );
+  };
+
+  const inputKeys = [
+    '1',
+    '10', '20', '30', '40', '50', '60', '70', '80', '90',
+    '100', '200', '300', '400', '500', '600', '700', '800', '900',
+    '1000', '2000', '3000', '4000', '5000', '6000', '7000', '8000', '9000',
+    '10000', '20000', '30000', '40000', '50000', '60000', '70000', '80000', '90000',
+    '100000'
+  ];
+
+  const getInputNum = () => {
+    return inputKeys[inputRef.current.value];
+  };
+
   return (
-    <Board />
+    <>
+      <Board />
+      <Slider />
+    </>
   );
 }
 

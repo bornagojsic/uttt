@@ -1,3 +1,38 @@
+/* Importing Roboto from Google Fonts */
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+/* Font size based on scren width */
+
+span {
+	color: #2374ff;
+}
+
+body {
+	font-size: 16px;
+}
+
+/* Media query for screens with a maximum width of 768px */
+@media (max-width: 768px) {
+	body {
+	font-size: 14px;
+	}
+}
+
+/* Media query for screens with a maximum width of 480px */
+@media (max-width: 480px) {
+	body {
+	font-size: 12px;
+	}
+}
+
+/* Media query for screens with a maximum width of 380px */
+@media (max-width: 480px) {
+	body {
+	font-size: 10px;
+	}
+}
+
 /* Variables */
 
 :root {
@@ -13,6 +48,18 @@ div#container {
 	top: 5vh;
 	display: flex;
     justify-content: center;
+}
+
+div#slider {
+	position: relative;
+	top: 10vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+    justify-content: center;
+	font-family: 'Roboto';
+	font-weight: 500;
+	font-size: 0.25ref;
 }
 
 /* Big Tic Tac Toe boards */
@@ -110,3 +157,6 @@ div.X button {
 	position: relative;
 	z-index: -1;
 }
+
+/* Slider */
+
