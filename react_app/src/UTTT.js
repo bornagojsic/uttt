@@ -6,7 +6,7 @@ function UTTT () {
   const gameID = Math.random();
   const boardsRef = useRef([]);
   const buttonsRef = useRef([]);
-  const inputRef = useRef({value: 37});
+  const inputRef = useRef({value: 23});
   const spanRef = useRef(null);
 
   const keysToMove = [
@@ -43,6 +43,7 @@ function UTTT () {
 
   const handleClick = async (index) => {
     console.log(index);
+    console.log("sent num iters:", inputRef.current.value);
     const button = buttonsRef.current[index];
     const inClassName = (str) => { return button.className.includes(str) };
     console.log("buttons", buttonsRef);
@@ -56,12 +57,10 @@ function UTTT () {
     disableAllBoards();
     console.log("Sent move:", move);
     sendMove(move);
-
-
   }
 
   const sendMove = (move) => {
-    fetch('http://127.0.0.1:5000/uttt', {
+    fetch('https://bornagojsic.pythonanywhere.com/uttt', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ID: gameID, move: move, numIters: getInputNum() })
@@ -237,7 +236,7 @@ function UTTT () {
         <span ref={spanRef}>
           Number of simulations: {getInputNum()}
         </span>
-        <input type="range" min="0" max="37" onChange={handleSliderChange} /*value={50}*/ ref={inputRef}/>
+        <input type="range" min="0" max="37" onChange={handleSliderChange} defaultValue={inputRef.current.value} ref={inputRef}/>
         <span>
           Note: The waiting time for the AI's move is larger for more simulations
         </span>
