@@ -4,8 +4,12 @@
 
 /* Font size based on scren width */
 
+html {
+	font-family: 'Roboto';
+}
+
 span {
-	color: #2374ff;
+	color: #444;
 }
 
 body {
@@ -38,6 +42,7 @@ body {
 :root {
 	/* --btn-size: min(6vh, 5vw); */
 	--btn-size: 5vmin;
+	--options-btn-size: 7.5vmin;
 	--little-board-size: 25vmin;
 }
 
@@ -103,35 +108,45 @@ button {
 	position: relative;
 	height: var(--btn-size);
 	width: var(--btn-size);
-	background-color: rgba(204, 204, 204, 0.75);
+	background-color: #fff;
 	margin: calc(var(--btn-size) / 4);
 	border: 1px;
 	border-radius: calc(var(--btn-size) / 4);
 }
 
-button.empty.enabled {
+button.empty.enabled.userO {
 	z-index: 0;
 	background-color: rgba(100, 209, 245, 0.5);
 }
 
-button.empty.enabled:hover {
+button.empty.enabled.userO:hover {
 	background-color: #48c5ef;
 	cursor: pointer;
 }
 
-button.O {
+button.empty.enabled.userX {
+	z-index: 0;
+	background-color: rgba(255, 97, 95, 0.5);
+}
+
+button.empty.enabled.userX:hover {
+	background-color: #ff615f;
+	cursor: pointer;
+}
+
+button.symbolO {
 	background-image: url('../img/o.png');
 	background-size: var(--btn-size);
 }
 
-button.X {
+button.symbolX {
 	background-image: url('../img/x.png');
 	background-size: var(--btn-size);
 }
 
 /* Won small Tic Tac Toe boards */
 
-div.O {
+div.symbolO {
 	position: absolute;
 	z-index: 1;
 	background-image: url('../img/o.png');
@@ -142,7 +157,7 @@ div.O {
 	width: var(--little-board-size);
 }
 
-div.X {
+div.symbolX {
 	position: absolute;
 	z-index: 1;
 	background-image: url('../img/x.png');
@@ -153,11 +168,129 @@ div.X {
 	width: var(--little-board-size);
 }
 
-div.O button,
-div.X button {
+div.symbolTie {
+	position: absolute;
+	z-index: 1;
+	background-image: url('../img/tie.png');
+	background-repeat: no-repeat;
+	background-size: cover;
+	opacity: 0.65;
+	height: var(--little-board-size);
+	width: var(--little-board-size);
+}
+
+div.symbolO button,
+div.symbolX button,
+div.symbolTie button {
 	position: relative;
 	z-index: -1;
 }
 
 /* Slider */
 
+/* The slider itself */
+.slider {
+	height: 10px;
+	border-radius: 10px;
+	background: #d3d3d3; /* Grey background */
+	outline: none; /* Remove outline */
+	opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+	-webkit-transition: .2s; /* 0.2 seconds transition on hover */
+	transition: opacity .2s;
+}
+
+/* Mouse-over effects */
+.slider:hover {
+	opacity: 1; /* Fully shown on mouse-over */
+}
+
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+.slider::-webkit-slider-thumb {
+	width: 15px;
+	height: 15px;
+	border-radius: 50%; 
+	background: #444;
+	cursor: pointer; /* Cursor on hover */
+}
+
+.slider::-moz-range-thumb {
+	width: 15px;
+	height: 15px;
+	border-radius: 50%; 
+	background: #444;
+	cursor: pointer; /* Cursor on hover */
+}
+
+/* Options */
+
+div#options {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	visibility: hidden;
+	background-color: #fff;
+	z-index: 1;
+}
+
+button#options-button {
+	visibility: visible;
+	background-image: url(../img/gear.png);
+	background-size: cover;
+	width: var(--options-btn-size);
+	height: var(--options-btn-size);
+	cursor: pointer;
+	z-index: 2;
+}
+
+button#options-button:hover {
+	background-image: url(../img/gear-full.png);
+}
+
+div#options-button-container {
+	position: absolute;
+	top: 2vh;
+	right: 2vw;
+}
+
+div#options-container {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	top: 5vh;
+	margin: auto;
+}
+
+button.options {
+	position: relative;
+	height: var(--options-btn-size);
+	width: var(--options-btn-size);
+	background-color: rgba(255, 255, 255, 0.75);
+	margin: calc(var(--btn-size) / 4);
+	border: 1px;
+	border-radius: calc(var(--btn-size) / 4);
+	cursor: pointer;
+}
+
+button.options.O {
+	background-image: url('../img/o.png');
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+button.options.X {
+	background-image: url('../img/x.png');
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+button.options.O:hover {
+	background-color: rgba(100, 209, 245, 0.25);
+}
+
+button.options.X:hover {
+	background-color: rgba(255, 97, 95, 0.25);
+}

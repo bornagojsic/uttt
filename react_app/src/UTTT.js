@@ -7,6 +7,12 @@ function UTTT () {
   const buttonsRef = useRef([]);
   const inputRef = useRef({value: 23});
   const spanRef = useRef(null);
+  const optionsRef = useRef(null);
+  const userSymbolRef = useRef(null);
+  let userSymbol = "symbolO";
+  let AiSymbol = "symbolX";
+  let tieSymbol = "symbolTie";
+  let optionsVisibility = false;
 
   const keysToMove = [
     "A9", "B9", "C9", "A8", "B8", "C8", "A7", "B7", "C7",
@@ -51,7 +57,7 @@ function UTTT () {
       return;
     }
     
-    button.className = button.className.replace('empty', 'O');
+    button.className = button.className.replace('empty', userSymbol);
     const move = keysToMove[index];
     disableAllBoards();
     console.log("Sent move:", move);
@@ -74,7 +80,7 @@ function UTTT () {
         if (data.isOver !== "false") {
           if (data.move === "") {
             // the player has won
-            showBoardWinner("O", Math.floor(moveToKeys[move] / 9));
+            showBoardWinner(userSymbol, Math.floor(moveToKeys[move] / 9));
             console.log("GAME OVER!");
             alert('Game Over!');
             for (let i = 0; i < 9; i++) {
@@ -87,7 +93,7 @@ function UTTT () {
         
         const moveKey = moveToKeys[data.move];
         const button = buttonsRef.current[moveKey];
-        button.className = button.className.replace('empty', 'X');
+        button.className = button.className.replace('empty', AiSymbol);
         nextPlayerBoard = moveKey % 9;
         console.log("next move must be on board:", nextPlayerBoard);
         console.log("boardwinners:", boardWinners, Math.floor(moveKey / 9), Math.floor(moveToKeys[move] / 9));
@@ -100,17 +106,24 @@ function UTTT () {
           enableAllNonWonBoards();
         }
         // checks for won boards
-        if (boardWinners[Math.floor(moveKey / 9)] !== ".") {
-          showBoardWinner("X", Math.floor(moveKey / 9));
+        // treba bolja implementacija ovo neka fja npr
+        if (boardWinners[Math.floor(moveKey / 9)] === "x") {
+          showBoardWinner(AiSymbol, Math.floor(moveKey / 9));
         }
-        if (boardWinners[Math.floor(moveToKeys[move] / 9)] !== ".") {
-          showBoardWinner("O", Math.floor(moveToKeys[move] / 9));
+        if (boardWinners[Math.floor(moveToKeys[move] / 9)] === "o") {
+          showBoardWinner(userSymbol, Math.floor(moveToKeys[move] / 9));
+        }
+        if (boardWinners[Math.floor(moveKey / 9)] === "f") {
+          showBoardWinner(tieSymbol, Math.floor(moveKey / 9));
+        }
+        if (boardWinners[Math.floor(moveToKeys[move] / 9)] === "f") {
+          showBoardWinner(tieSymbol, Math.floor(moveToKeys[move] / 9));
         }
 
         if (data.isOver !== "false") {
           // the AI has won
           // this next line is redundant but this all isOver needs its own function
-          showBoardWinner("X", Math.floor(moveKey / 9)); 
+          showBoardWinner(AiSymbol, Math.floor(moveKey / 9)); 
           console.log("GAME OVER!");
           alert('Game Over!');
           for (let i = 0; i < 9; i++) {
@@ -130,8 +143,8 @@ function UTTT () {
 
   // const removeBoardWinners = () => {
   //   for (let i = 0; i < 9; i++) {
-  //     boardsRef.current[i].className = boardsRef.current[i].className.replace("X", "winner");
-  //     boardsRef.current[i].className = boardsRef.current[i].className.replace("O", "winner");
+  //     boardsRef.current[i].className = boardsRef.current[i].className.replace("symbolX", "winner");
+  //     boardsRef.current[i].className = boardsRef.current[i].className.replace("symbolO", "winner");
   //   }
   // }
 
@@ -218,7 +231,7 @@ function UTTT () {
   const Square = ({ value, onClick, index }) => {
     // render the square with the appropriate value and click handler
     return (
-      <button key={`button-${index}`} className="empty enabled" onClick={onClick} ref={el => (buttonsRef.current[index] = el)}>
+      <button key={`button-${index}`} className="empty enabled userO" onClick={onClick} ref={el => (buttonsRef.current[index] = el)}>
         {value}
       </button>
     );
@@ -235,7 +248,7 @@ function UTTT () {
         <span ref={spanRef}>
           Number of simulations: {getInputNum()}
         </span>
-        <input type="range" min="0" max="37" onChange={handleSliderChange} defaultValue={inputRef.current.value} ref={inputRef}/>
+        <input type="range" className='slider' min="0" max="37" onChange={handleSliderChange} defaultValue={inputRef.current.value} ref={inputRef}/>
         <span>
           Note: The waiting time for the AI's move is larger for more simulations
         </span>
@@ -256,10 +269,53 @@ function UTTT () {
     return inputKeys[inputRef.current.value];
   };
 
+  const showOptions = () => {
+    if (optionsVisibility === true) {
+      optionsRef.current.style = "visibility: hidden";
+    } else {
+      optionsRef.current.style = "visibility: visible";
+    }
+    optionsVisibility = !optionsVisibility;
+  };
+
+  const switchSymbols = (element, symbol, newSymbol) => {
+    if (element.className.includes(symbol)) {
+      element.className = element.className.replace(symbol, newSymbol);
+    } else {
+      element.className = element.className.replace(newSymbol, symbol);
+    }
+  };
+
+  const changeUserSymbol = () => {
+    switchSymbols(userSymbolRef.current, "O", "X");
+    buttonsRef.current.forEach(button => {
+      switchSymbols(button, "symbolO", "symbolX");
+      switchSymbols(button, "userO", "userX");
+    });
+    boardsRef.current.forEach(board => {
+      switchSymbols(board, "symbolO", "symbolX");
+    });
+    [userSymbol, AiSymbol] = [AiSymbol, userSymbol];
+  };
+
+  const Options = () => {
+    return (
+      <div id="options" ref={optionsRef}>
+        <div id="options-button-container">
+          <button id="options-button" onClick={showOptions}></button>
+        </div>
+        <div id="options-container">
+          <button className={`options O`} ref={userSymbolRef} onClick={changeUserSymbol}></button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
       <Board />
       <Slider />
+      <Options />
     </>
   );
 }
