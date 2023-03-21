@@ -1,15 +1,27 @@
-/* Importing Roboto from Google Fonts */
+/* Importing font */
 
-@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+@font-face {
+	font-family: 'CircularPro';
+	src:  url('../public/CircularPro.woff2') format('woff2'),
+		  url('../public/CircularPro.woff') format('woff');
+}
+
+body {
+	font-family: 'CircularPro';
+}
+
+body.dark {
+	background-color: #333;
+}
 
 /* Font size based on scren width */
 
-html {
-	font-family: 'Roboto';
+div#slider.light span {
+	color: #666;
 }
 
-span {
-	color: #444;
+div#slider.dark span {
+	color: #ccc;
 }
 
 body {
@@ -63,8 +75,7 @@ div#slider {
 	flex-direction: column;
 	align-items: center;
     justify-content: center;
-	font-family: 'Roboto';
-	font-weight: 500;
+	font-weight: 300;
 	font-size: 0.25ref;
 }
 
@@ -85,6 +96,21 @@ div.board {
 	background-color: #fff;
 }
 
+body.dark div.table {
+	display: grid;
+	grid-template-columns: repeat(3, var(--little-board-size));
+	grid-template-rows: repeat(3, var(--little-board-size));
+	gap: 3px;
+	background-color: #aaa;
+	border: none;
+}
+
+body.dark div.board {
+	display: grid;
+	place-content: center;
+	background-color: #333;
+}
+
 /* Small Tic Tac Toe boards */
 
 div.little-table {
@@ -102,16 +128,38 @@ div.square {
 	background-color: #fff;
 }
 
+body.dark div.little-table {
+	display: grid;
+	grid-template-columns: repeat(3, calc(var(--btn-size) * 1.5));
+	grid-template-rows: repeat(3, calc(var(--btn-size) * 1.5));
+	gap: 1.5px;
+	background-color: #777;
+	border: none;
+}
+
+body.dark div.square {
+	display: grid;
+	place-content: center;
+	background-color: #333;
+}
+
 /* Buttons */
 
 button {
 	position: relative;
 	height: var(--btn-size);
 	width: var(--btn-size);
-	background-color: #fff;
 	margin: calc(var(--btn-size) / 4);
 	border: 1px;
 	border-radius: calc(var(--btn-size) / 4);
+}
+
+button.light {
+	background-color: #fff;
+}
+
+button.dark {
+	background-color: #333;
 }
 
 button.empty.enabled.userO {
@@ -144,7 +192,7 @@ button.symbolX {
 	background-size: var(--btn-size);
 }
 
-/* Won small Tic Tac Toe boards */
+/* Won/tied small Tic Tac Toe boards */
 
 div.symbolO {
 	position: absolute;
@@ -190,13 +238,19 @@ div.symbolTie button {
 
 /* The slider itself */
 .slider {
+	margin-top: 2vh;
+	margin-bottom: 2vh;
 	height: 10px;
 	border-radius: 10px;
-	background: #d3d3d3; /* Grey background */
+	background-color: #d3d3d3; /* Grey background */
 	outline: none; /* Remove outline */
 	opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
 	-webkit-transition: .2s; /* 0.2 seconds transition on hover */
 	transition: opacity .2s;
+}
+
+div#slider.dark .slider {
+	background-color: #fff;
 }
 
 /* Mouse-over effects */
@@ -209,16 +263,24 @@ div.symbolTie button {
 	width: 15px;
 	height: 15px;
 	border-radius: 50%; 
-	background: #444;
+	background-color: #555;
 	cursor: pointer; /* Cursor on hover */
+}
+
+div#slider.dark .slider::-webkit-slider-thumb {
+	background-color: #bbb;
 }
 
 .slider::-moz-range-thumb {
 	width: 15px;
 	height: 15px;
 	border-radius: 50%; 
-	background: #444;
+	background-color: #555;
 	cursor: pointer; /* Cursor on hover */
+}
+
+div#slider.dark .slider::-moz-range-thumb {
+	background-color: #bbb;
 }
 
 /* Options */
@@ -230,12 +292,20 @@ div#options {
 	width: 100vw;
 	height: 100vh;
 	visibility: hidden;
-	background-color: #fff;
 	z-index: 1;
+}
+
+div#options.light {
+	background-color: #fff;
+}
+
+div#options.dark {
+	background-color: #333;
 }
 
 button#options-button {
 	visibility: visible;
+	background-color: transparent;
 	background-image: url(../img/gear.png);
 	background-size: cover;
 	width: var(--options-btn-size);
@@ -268,7 +338,7 @@ button.options {
 	position: relative;
 	height: var(--options-btn-size);
 	width: var(--options-btn-size);
-	background-color: rgba(255, 255, 255, 0.75);
+	/* background-color: rgba(255, 255, 255, 0.75); */
 	margin: calc(var(--btn-size) / 4);
 	border: 1px;
 	border-radius: calc(var(--btn-size) / 4);
@@ -293,4 +363,24 @@ button.options.O:hover {
 
 button.options.X:hover {
 	background-color: rgba(255, 97, 95, 0.25);
+}
+
+button.options.mode.light {
+	background-image: url('../img/light.png');
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+button.options.mode.light:hover {
+	background-image: url('../img/light-full.png');
+}
+
+button.options.mode.dark {
+	background-image: url('../img/dark.png');
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+button.options.mode.dark:hover {
+	background-image: url('../img/dark-full.png');
 }

@@ -1,5 +1,5 @@
 import './UTTT.css';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 
 function UTTT () {
   const gameID = Math.random();
@@ -7,13 +7,18 @@ function UTTT () {
   const buttonsRef = useRef([]);
   const inputRef = useRef({value: 23});
   const spanRef = useRef(null);
+  const sliderRef = useRef(null);
   const optionsRef = useRef(null);
   const userSymbolRef = useRef(null);
+  const lightDarkModeRef = useRef(null);
   let userSymbol = "symbolO";
   let AiSymbol = "symbolX";
   let tieSymbol = "symbolTie";
   let optionsVisibility = false;
-
+  let boardWinners = Array(9).fill('.');
+  let nextPlayerBoard = -1;
+  // let gameOver = false;
+  
   const keysToMove = [
     "A9", "B9", "C9", "A8", "B8", "C8", "A7", "B7", "C7",
     "D9", "E9", "F9", "D8", "E8", "F8", "D7", "E7", "F7",
@@ -24,7 +29,7 @@ function UTTT () {
     "A3", "B3", "C3", "A2", "B2", "C2", "A1", "B1", "C1",
     "D3", "E3", "F3", "D2", "E2", "F2", "D1", "E1", "F1",
     "G3", "H3", "I3", "G2", "H2", "I2", "G1", "H1", "I1",
-  ];
+  ];  
 
   let moveToKeys = {
     "A9":  0, "B9":  1, "C9":  2, "A8":  3, "B8":  4, "C8":  5, "A7":  6, "B7":  7, "C7":  8,
@@ -38,27 +43,17 @@ function UTTT () {
     "G3": 72, "H3": 73, "I3": 74, "G2": 75, "H2": 76, "I2": 77, "G1": 78, "H1": 79, "I1": 80,
   };
 
-  let boardWinners = Array(9).fill('.');
-  let nextPlayerBoard = -1;
-  // let gameOver = false;
-
-  const boardClassNameReplace = (boardIndex, name, replaceWith) => {
-    boardsRef.current[boardIndex].className = boardsRef.current[boardIndex].className.replace(name, replaceWith);
-  }
-
   const handleClick = async (index) => {
     console.log(index);
     console.log("sent num iters:", inputRef.current.value);
+    const move = keysToMove[index];
     const button = buttonsRef.current[index];
     const inClassName = (str) => { return button.className.includes(str) };
-    console.log("buttons", buttonsRef);
-    console.log("boards", boardsRef);
     if (!inClassName('empty') || !inClassName('enabled')) {
       return;
     }
     
-    button.className = button.className.replace('empty', userSymbol);
-    const move = keysToMove[index];
+    changeSymbol(button, 'empty', userSymbol);
     disableAllBoards();
     console.log("Sent move:", move);
     sendMove(move);
@@ -93,7 +88,7 @@ function UTTT () {
         
         const moveKey = moveToKeys[data.move];
         const button = buttonsRef.current[moveKey];
-        button.className = button.className.replace('empty', AiSymbol);
+        changeSymbol(button, 'empty', AiSymbol);
         nextPlayerBoard = moveKey % 9;
         console.log("next move must be on board:", nextPlayerBoard);
         console.log("boardwinners:", boardWinners, Math.floor(moveKey / 9), Math.floor(moveToKeys[move] / 9));
@@ -138,7 +133,7 @@ function UTTT () {
   const handleData = (data) => {};
 
   const showBoardWinner = (symbol, boardIndex) => {
-    boardClassNameReplace(boardIndex, "winner", symbol);
+    changeSymbol(boardsRef.current[boardIndex], "winner", symbol);
   }
 
   // const removeBoardWinners = () => {
@@ -157,7 +152,7 @@ function UTTT () {
   const disableBoard = (boardIndex) => {
     for (let i = 0; i < 9; i++) {
       const button = buttonsRef.current[boardIndex * 9 + i];
-      button.className = button.className.replace('enabled', 'disabled');
+      changeSymbol(button, 'enabled', 'disabled');
     }
   }
 
@@ -172,7 +167,7 @@ function UTTT () {
   const enableBoard = (boardIndex) => {
     for (let i = 0; i < 9; i++) {
       const button = buttonsRef.current[boardIndex * 9 + i];
-      button.className = button.className.replace('disabled', 'enabled');
+      changeSymbol(button, 'disabled', 'enabled');
     }
   }
 
@@ -180,10 +175,9 @@ function UTTT () {
     // create an array to represent the 3x3 grid of Tic Tac Toe boards
     const boards = Array(9)
       .fill(null)
-      .map(() => ({
-        squares: Array(9).fill(null),
-        winner: null,
-        })
+      .map(() => (
+          Array(9).fill(null)
+        )
       );
     
     console.log(boards);
@@ -213,11 +207,10 @@ function UTTT () {
       <>
         <div className="winner" key={`winnerdiv-${boardIndex}`} ref={el => (boardsRef.current[boardIndex] = el)} />
         <div className="little-table" key={`little-table-${boardIndex}`}>
-          {board.squares.map((square, index) => (
+          {board.map((_square, index) => (
             <div className="square" key={`square-div-${index}`}>
               <Square
                 key={`square-${index}`}
-                value={undefined}
                 onClick={() => onClick(9 * boardIndex + index)}
                 index={9 * boardIndex + index}
               />
@@ -228,23 +221,34 @@ function UTTT () {
     );
   };
 
-  const Square = ({ value, onClick, index }) => {
+  const Square = ({ onClick, index }) => {
     // render the square with the appropriate value and click handler
     return (
-      <button key={`button-${index}`} className="empty enabled userO" onClick={onClick} ref={el => (buttonsRef.current[index] = el)}>
-        {value}
-      </button>
+      <button 
+        key={`button-${index}`}
+        className="empty enabled userO light"
+        onClick={onClick}
+        ref={el => (buttonsRef.current[index] = el)}
+      />
     );
   };
 
   const handleSliderChange = () => {
-    // console.log(getInputNum());
     spanRef.current.innerHTML = `Number of simulations: ${getInputNum()}`;
   }
+  
+    const inputKeys = [
+      '1',
+      '10', '20', '30', '40', '50', '60', '70', '80', '90',
+      '100', '200', '300', '400', '500', '600', '700', '800', '900',
+      '1000', '2000', '3000', '4000', '5000', '6000', '7000', '8000', '9000',
+      '10000', '20000', '30000', '40000', '50000', '60000', '70000', '80000', '90000',
+      '100000'
+    ];
 
   const Slider = () => {
     return (
-      <div id="slider" key="slider-div">
+      <div id="slider" className="light" ref={sliderRef} key="slider-div">
         <span ref={spanRef}>
           Number of simulations: {getInputNum()}
         </span>
@@ -255,15 +259,6 @@ function UTTT () {
       </div>
     );
   };
-
-  const inputKeys = [
-    '1',
-    '10', '20', '30', '40', '50', '60', '70', '80', '90',
-    '100', '200', '300', '400', '500', '600', '700', '800', '900',
-    '1000', '2000', '3000', '4000', '5000', '6000', '7000', '8000', '9000',
-    '10000', '20000', '30000', '40000', '50000', '60000', '70000', '80000', '90000',
-    '100000'
-  ];
 
   const getInputNum = () => {
     return inputKeys[inputRef.current.value];
@@ -280,9 +275,15 @@ function UTTT () {
 
   const switchSymbols = (element, symbol, newSymbol) => {
     if (element.className.includes(symbol)) {
-      element.className = element.className.replace(symbol, newSymbol);
+      changeSymbol(element, symbol, newSymbol);
     } else {
-      element.className = element.className.replace(newSymbol, symbol);
+      changeSymbol(element, newSymbol, symbol);
+    }
+  };
+
+  const changeSymbol = (element, symbol, newSymbol) => {
+    if (element.className.includes(symbol)) {
+      element.className = element.className.replace(symbol, newSymbol);
     }
   };
 
@@ -300,15 +301,32 @@ function UTTT () {
 
   const Options = () => {
     return (
-      <div id="options" ref={optionsRef}>
+      <div id="options" className="light" ref={optionsRef}>
         <div id="options-button-container">
           <button id="options-button" onClick={showOptions}></button>
         </div>
         <div id="options-container">
-          <button className={`options O`} ref={userSymbolRef} onClick={changeUserSymbol}></button>
+          <button className="options O light" ref={userSymbolRef} onClick={changeUserSymbol} />
+          <button className="options mode light" ref={lightDarkModeRef} onClick={changeLightDarkMode} />
         </div>
       </div>
     );
+  };
+
+  const changeLightDarkMode = () => {
+    switchSymbols(lightDarkModeRef.current, "light", "dark");
+    switchSymbols(optionsRef.current, "light", "dark");
+    switchSymbols(sliderRef.current, "light", "dark");
+    switchSymbols(userSymbolRef.current, "light", "dark");
+    buttonsRef.current.forEach(button => {switchSymbols(button, "light", "dark");});
+    if (document.body.className.includes("dark")) {
+      switchSymbols(document.body, "light", "dark");
+    } else {
+      if (!document.body.className.includes("light")) {
+        document.body.className += " light";
+      }
+      switchSymbols(document.body, "light", "dark");
+    }
   };
 
   return (
