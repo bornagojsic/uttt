@@ -16,7 +16,6 @@ function UTTT () {
   let tieSymbol = "symbolTie";
   let optionsVisibility = false;
   let boardWinners = Array(9).fill('.');
-  let nextPlayerBoard = -1;
   // let gameOver = false;
   
   const keysToMove = [
@@ -66,71 +65,66 @@ function UTTT () {
       body: JSON.stringify({ ID: gameID, move: move, numIters: getInputNum() })
     })
       .then(response => response.json())
-      .then(data => {
-        // ovo stavit u novu funkciju handleData
-        
-        console.log("Gotten:", data);
-        boardWinners = data.boardWinners;
-
-        if (data.isOver !== "false") {
-          if (data.move === "") {
-            // the player has won
-            showBoardWinner(userSymbol, Math.floor(moveToKeys[move] / 9));
-            console.log("GAME OVER!");
-            alert('Game Over!');
-            for (let i = 0; i < 9; i++) {
-              disableBoard(i);
-            }
-            return;
-            // gameOver = true;
-          }
-        }
-        
-        const moveKey = moveToKeys[data.move];
-        const button = buttonsRef.current[moveKey];
-        changeSymbol(button, 'empty', AiSymbol);
-        nextPlayerBoard = moveKey % 9;
-        console.log("next move must be on board:", nextPlayerBoard);
-        console.log("boardwinners:", boardWinners, Math.floor(moveKey / 9), Math.floor(moveToKeys[move] / 9));
-        // if the board is not won yet, then you can put a symbol only on
-        // that board, you can put it on any non-won board
-        if (boardWinners[nextPlayerBoard] === ".") {
-          console.log("only this board!");
-          enableBoard(nextPlayerBoard);
-        } else {
-          enableAllNonWonBoards();
-        }
-        // checks for won boards
-        // treba bolja implementacija ovo neka fja npr
-        if (boardWinners[Math.floor(moveKey / 9)] === "x") {
-          showBoardWinner(AiSymbol, Math.floor(moveKey / 9));
-        }
-        if (boardWinners[Math.floor(moveToKeys[move] / 9)] === "o") {
-          showBoardWinner(userSymbol, Math.floor(moveToKeys[move] / 9));
-        }
-        if (boardWinners[Math.floor(moveKey / 9)] === "f") {
-          showBoardWinner(tieSymbol, Math.floor(moveKey / 9));
-        }
-        if (boardWinners[Math.floor(moveToKeys[move] / 9)] === "f") {
-          showBoardWinner(tieSymbol, Math.floor(moveToKeys[move] / 9));
-        }
-
-        if (data.isOver !== "false") {
-          // the AI has won
-          // this next line is redundant but this all isOver needs its own function
-          showBoardWinner(AiSymbol, Math.floor(moveKey / 9)); 
-          console.log("GAME OVER!");
-          alert('Game Over!');
-          for (let i = 0; i < 9; i++) {
-            disableBoard(i);
-          }
-          return;
-          // gameOver = true;
-        }
-      });
+      .then(data => handleResponse(data, move));
   };
 
-  const handleData = (data) => {};
+  const handleResponse = (data, move) => {
+    console.log("Gotten:", data);
+    boardWinners = data.boardWinners;
+    
+    if (data.isOver !== "false") {  
+      if (data.move === "") {
+        // the player has won
+        showBoardWinner(userSymbol, Math.floor(moveToKeys[move] / 9));
+        console.log("GAME OVER!");
+        alert('Game Over!');
+        disableAllBoards();
+        return;
+        // gameOver = true;
+      }
+    }
+    
+    const moveKey = moveToKeys[data.move];
+    const AiButton = buttonsRef.current[moveKey];
+    changeSymbol(AiButton, 'empty', AiSymbol);
+    let nextPlayerBoard = moveKey % 9;
+    let userBoardIndex = Math.floor(moveToKeys[move] / 9);
+    let AiBoardIndex = Math.floor(moveKey / 9);
+
+    // if the board is not won yet, then you can put a symbol only on
+    // the board selected by the Ai, else you can put it on any non-won board
+    if (boardWinners[nextPlayerBoard] === ".") {
+      enableBoard(nextPlayerBoard);
+    } else {
+      enableAllNonWonBoards();
+    }
+    // checks for won boards
+    checkBoardWinner(AiBoardIndex);
+    checkBoardWinner(userBoardIndex);
+
+    if (data.isOver !== "false") {
+      // the AI has won
+      // this next line is redundant but this all isOver needs its own function
+      showBoardWinner(AiSymbol, AiBoardIndex); 
+      console.log("GAME OVER!");
+      alert('Game Over!');
+      disableAllBoards();
+      return;
+      // gameOver = true;
+    }
+  };
+
+  const checkBoardWinner = (boardIndex) => {
+    if (boardWinners[boardIndex] === "x") {
+      showBoardWinner(AiSymbol, boardIndex);
+    }
+    if (boardWinners[boardIndex] === "o") {
+      showBoardWinner(userSymbol, boardIndex);
+    }
+    if (boardWinners[boardIndex] === "f") {
+      showBoardWinner(tieSymbol, boardIndex);
+    }
+  }
 
   const showBoardWinner = (symbol, boardIndex) => {
     changeSymbol(boardsRef.current[boardIndex], "winner", symbol);
